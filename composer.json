@@ -31,7 +31,8 @@
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^3.0"
+        "symfony/phpunit-bridge": "^3.0",
+        "phpspec/phpspec": "^2.5"
     },
     "scripts": {
         "post-install-cmd": [
@@ -61,5 +62,8 @@
         "incenteev-parameters": {
             "file": "app/config/parameters.yml"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
