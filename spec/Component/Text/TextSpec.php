@@ -15,8 +15,8 @@ class TextSpec extends ObjectBehavior
     function it_has_a_content()
     {
     	$content = 'Random content';
-	$this->setContent($content);
-	$this->getContent()->shouldReturn($content);
+        $this->setContent($content);
+        $this->getContent()->shouldReturn($content);
     }
 
     function it_could_be_construncted_with_content()
