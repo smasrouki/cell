@@ -2,7 +2,8 @@
 
 namespace AppBundle\Controller;
 
-use Component\Breaker\Breaker;
+use Component\Cell\Cell;
+use Component\Cell\Content;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
