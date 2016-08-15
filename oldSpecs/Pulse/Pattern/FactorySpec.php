@@ -39,7 +39,7 @@ class FactorySpec extends ObjectBehavior
 	    $this->create($className)->shouldHaveType('Component\Pulse\Test\TestClass');
     }
 
-    function it_should_generate_if_it_doesnt_exist()
+    function it_should_generate_the_object_class_if_it_doesnt_exist()
     {
         $className = 'DoesntExist';
 
@@ -55,5 +55,7 @@ class FactorySpec extends ObjectBehavior
         if(file_exists($testClass)) {
             unlink($testClass);
         }
+
+        $this->setBaseNamespace('Component\Pulse\Pool');
     }
 }

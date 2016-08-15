@@ -2,9 +2,9 @@
 
 namespace Component\Pulse\Pattern;
 
-use Composer\Autoload\ClassLoader;
+use Component\Pulse\Pattern\Adapter\AdaptedInterface;
 
-class Factory
+class Factory implements AdaptedInterface
 {
     protected static $instance;
 
@@ -66,4 +66,13 @@ class Factory
 
         include __DIR__.'/../Pool/'.$className.'.php';
     }
+
+    public function process($value = null)
+    {
+        if($value) {
+            return $this->create($value);
+        }
+    }
+
+
 }

@@ -2,6 +2,8 @@
 
 namespace AppBundle\Command;
 
+use Component\Pulse\Pattern\Adapter\Adapter;
+use Component\Pulse\Pattern\Factory;
 use Component\Text\Text;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -23,40 +25,57 @@ class PulseStartCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $formatter = $this->getHelper('formatter');
-
-        $formattedLine = $formatter->formatSection(
-            'Pulse',
-            'Start'
-        );
-        $output->writeln($formattedLine);
+        $output->writeln($this->format('Pulse','Start'));
 
         $refText = file_get_contents('data/ref.txt');
 
         $text = new Text($refText);
 
+        $factory = Factory::getInstance();
+
+        $node = null;
+        $adapter = null;
+
         foreach($text->getParts() as $part) {
             try{
-                throw new \Exception('test');
+                if($adapter) {
+                    $output->writeln($this->format('Pulse', 'Next: '.$part. '('.$text->getOccurrencesRate($part).'%)'));
+                    $output->writeln($this->format('Pulse', 'Result: '.$node->process()));
+                    //dump($node);exit();
+                    break;
+                }
 
+                if($text->getOccurrencesRate($part) >= 4.7) {
+                    $adapted = $factory->create($part);
+                    $adapter = new Adapter();
+                    $adapter->setAdapted($adapted);
+
+                    $node->setAdapter($adapter);
+                    $output->writeln($this->format('Adapter', sprintf('"%s" created', $part)));
+                } else {
+                    $node = $factory->create($part);
+                    $output->writeln($this->format('Factory', sprintf('"%s" created', $part)));
+                }
             } catch (ProcessException $e) {
-                $formattedLine = $formatter->formatSection(
-                    'Pulse',
-                    sprintf('"%s" can\'t be processed', $part)
-                );
-
-                $output->writeln($formattedLine);
+                $output->writeln($this->format('Pulse', sprintf('"%s" can\'t be processed', $part)));
                 break;
             } catch (\Exception $e) {
-                $formattedLine = $formatter->formatSection(
-                    'Pulse',
-                    $e->getMessage()
-                );
-
-                $output->writeln($formattedLine);
+                $output->writeln($this->format('Pulse', $e->getMessage()));
                 break;
             }
         }
+    }
+
+    protected function format($section, $text)
+    {
+        $formatter = $this->getHelper('formatter');
+
+        $formattedLine = $formatter->formatSection(
+            $section,
+            $text
+        );
+
+        return $formattedLine;
     }
 
 }

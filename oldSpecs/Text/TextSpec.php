@@ -27,6 +27,14 @@ class TextSpec extends ObjectBehavior
     	$this->getContent()->shouldReturn($content);
     }
 
+    function it_should_clean_content()
+    {
+        $content = "content#with\n\rnew#line###";
+
+        $this->beConstructedWith($content);
+        $this->getContent()->shouldReturn("content#with#new#line###");
+    }
+
     function it_has_a_separator()
     {
         $separator = "#";
@@ -48,9 +56,17 @@ class TextSpec extends ObjectBehavior
 
     function it_should_process_parts_form_content()
     {
-        $content = 'a#b#c';
+        $content = 'a#b#cd#e\'F#g,';
 
         $this->beConstructedWith($content);
-        $this->getparts()->shouldReturn(array('a', 'b', 'c'));
+        $this->getparts()->shouldReturn(array('A', 'B', 'Cd', 'Ef', 'G'));
+    }
+
+    function it_should_process_part_occurence_rate_in_a_content()
+    {
+        $content = 'ab#cd#ef#gh#ab#ij#';
+
+        $this->beConstructedWith($content);
+        $this->getOccurrencesRate('Ab')->shouldReturn(33.3);
     }
 }
