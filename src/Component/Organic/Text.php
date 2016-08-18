@@ -22,12 +22,23 @@ class Text
 
     protected $partsConcentration;
 
-    function __construct($content)
+    protected $threshold;
+
+    protected $ceil;
+
+    function __construct($content, $separator = null)
     {
         $this->content = $content;
+        $this->separator = $separator;
+
+        $this->init();
+    }
+
+    protected function init()
+    {
         $this->elements = array();
 
-        $elements = str_split($content);
+        $elements = str_split($this->content);
 
         foreach($elements as $element)
         {
@@ -47,7 +58,7 @@ class Text
 
         // Process concentration
         $this->elementsConcentration = array();
-        $totalCount = strlen($content);
+        $totalCount = strlen($this->content);
 
         foreach($this->orderedElements as $element) {
             $count = $this->elements[$element];
@@ -55,10 +66,28 @@ class Text
         }
 
         // Separator
-        $this->separator = $this->orderedElements[0];
+        if($this->separator === null) {
+            $this->separator = $this->orderedElements[0];
+        }
+
+        // clean content
+        $contentClean = $this->content;
+
+        $contentClean = str_replace("\r\n", $this->separator, $contentClean);
+        $contentClean = str_replace("\n", $this->separator, $contentClean);
+        $contentClean = str_replace(". ", $this->separator, $contentClean);
+        $contentClean = str_replace(", ", $this->separator, $contentClean);
+        $contentClean = str_replace("'", $this->separator, $contentClean);
+        $contentClean = strtolower($contentClean);
 
         // Parts
-        $this->parts = explode($this->separator, $this->content);
+        $this->parts = array();
+
+        foreach(explode($this->separator, $contentClean) as $part) {
+            if($part !== '') {
+                $this->parts[] = $part;
+            }
+        }
 
         // Part occurrences
         $this->partOccurrences = array();
@@ -85,6 +114,41 @@ class Text
             $count = $this->partOccurrences[$part];
             $this->partsConcentration[$part] = round($count / $totalCount * 100, 2);
         }
+
+        // Threshlod
+        $occurrencesCount = array();
+
+        foreach($this->partOccurrences as $part => $occurrences) {
+            if(!isset($occurrencesCount[$occurrences])) {
+                $occurrencesCount[$occurrences] = 0;
+            }
+
+            $occurrencesCount[$occurrences]++;
+        }
+
+        ksort($occurrencesCount);
+
+        $occurrences = array_keys($occurrencesCount);
+
+        if(isset($occurrences[1])) {
+            $this->threshold = $occurrences[1];
+            $maxOccCount = null;
+
+            // Ceil
+            foreach ($occurrencesCount as $occ => $count) {
+                if($maxOccCount === null) {
+                    $maxOccCount = $count;
+                    continue;
+                }
+
+                if ($count > $maxOccCount) {
+                    $this->ceil = $occ;
+                    break;
+                }
+
+                $maxOccCount = $count;
+            }
+        }
     }
 
     /**
@@ -101,6 +165,8 @@ class Text
     public function setContent($content)
     {
         $this->content = $content;
+
+        $this->init();
     }
 
     /**
@@ -148,6 +214,8 @@ class Text
     public function setSeparator($separator)
     {
         $this->separator = $separator;
+
+        $this->init();
     }
 
     public function getParts()
@@ -168,5 +236,15 @@ class Text
     public function getPartsConcentration()
     {
         return $this->partsConcentration;
+    }
+
+    public function getThreshold()
+    {
+        return $this->threshold;
+    }
+
+    public function getCeil()
+    {
+        return $this->ceil;
     }
 }

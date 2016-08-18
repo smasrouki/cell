@@ -23,49 +23,24 @@ class OrganicTextCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $content = file_get_contents('data/ref1.txt');
+        $content = file_get_contents('data/ref.txt');
 
         $text = new Text($content);
 
-        $text->setContent(null);
+        $concentrations = $text->getPartsConcentration();
 
         if($input->getOption('concentration')) {
             $dump = '';
 
-            foreach($text->getPartsConcentration() as $part => $concentration) {
+            foreach($text->getParts() as $part) {
+                $concentration = $concentrations[$part];
                 $dump .= $part.";".number_format($concentration, 2, ',', ' ')."\n";
             }
-
+            
             file_put_contents('dump.csv', $dump);
             exit();
         }
 
-        $message = '(Init) ';
-
-        $moy = 1.23;
-        $max = 1.84;
-
-        $concentrations = $text->getPartsConcentration();
-
-        foreach($text->getParts() as $part) {
-            $concentration = $concentrations[$part];
-            if($concentration >= $moy && $concentration < $max) {
-                $output->writeln($message);
-                $message = '';
-            }
-
-            if($concentration >= $max) {
-                $message .= '['.$part.']'.$text->getSeparator();
-            } else {
-                if($message == '') {
-                    $message .= '('.$part.')'.$text->getSeparator();
-                } else {
-                    $message .= $part.$text->getSeparator();
-                }
-            }
-        }
-
-        $output->writeln($message);
+        dump($text->getCeil());exit();
     }
-
 }

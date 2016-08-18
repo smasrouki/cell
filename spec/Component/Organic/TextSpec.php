@@ -106,7 +106,7 @@ class TextSpec extends ObjectBehavior
     function it_should_process_parts_from_content()
     {
         $result = array(
-            'I',
+            'i',
             'itial co',
             'te',
             't'
@@ -118,7 +118,7 @@ class TextSpec extends ObjectBehavior
     function it_should_process_parts_occurences_from_content()
     {
         $result = array(
-            'I' => 1,
+            'i' => 1,
             'itial co' => 1,
             'te' => 1,
             't' => 1,
@@ -133,7 +133,7 @@ class TextSpec extends ObjectBehavior
             't',
             'te',
             'itial co',
-            'I',
+            'i',
         );
 
         $this->getOrderedParts()->shouldReturn($result);
@@ -142,12 +142,65 @@ class TextSpec extends ObjectBehavior
     function it_should_process_parts_conccentration()
     {
         $result = array(
-            'I' => 25.00,
+            'i' => 25.00,
             'itial co' => 25.00,
             'te' => 25.00,
             't' => 25.00,
         );
 
         $this->getPartsConcentration()->shouldReturn($result);
+    }
+
+    function it_should_process_content_when_new_content_is_set()
+    {
+        $newContent = 'new';
+
+        $this->setContent($newContent);
+
+        $this->getElements()->shouldReturn(array('n' => 1, 'e' => 1, 'w' => 1));
+    }
+
+    function it_should_accept_a_separator_as_parameter()
+    {
+        $content = 'w1#w2';
+        $separator = "#";
+
+        $this->beConstructedWith($content, $separator);
+
+        $this->getParts()->shouldReturn(array('w1', 'w2'));
+
+        $this->setSeparator('w');
+        $this->getParts()->shouldReturn(array('1#', '2'));
+    }
+
+    function it_should_clean_content()
+    {
+        $content = "w1\r\nw2. w3, w4'w5 W6\n";
+        $separator = ' ';
+
+        $this->beConstructedWith($content, $separator);
+
+        $this->getParts()->shouldReturn(array('w1', 'w2', 'w3', 'w4', 'w5', 'w6'));
+    }
+
+    function it_should_process_a_threshold()
+    {
+        $content = "w1 w2 w3 w4 w4";
+        $separator = ' ';
+
+        $this->beConstructedWith($content, $separator);
+
+        $this->getThreshold()->shouldReturn(2);
+    }
+
+    function it_should_process_an_average()
+    {
+        // 3 => 1 occ / 1 => 2 occ / 2 => 3 occ ( 3occ )
+        $content = "w1 w2 w3 w4 w4 w5 w5 w5 w6 w6 w6";
+        $separator = ' ';
+
+        $this->beConstructedWith($content, $separator);
+
+        $this->getCeil()->shouldReturn(3);
     }
 }
